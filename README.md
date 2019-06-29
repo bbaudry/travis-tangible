@@ -1,2 +1,3 @@
-# travis-tangible
-Some experiments to reveal the extraordinary activity of software evolution
+# Tangible representations of Travis jobs
+
+I experiment with various media to build visual or sound representations of Travis jobs
