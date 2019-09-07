@@ -9,13 +9,13 @@
 
     <script>
     ws = new WebSocket('wss://travis.durieux.me');
-        //print each job on console
         ws.onmessage = function(event){
             const job = JSON.parse(event.data);
-//            console.log(job);
+            //print each job on console
+            console.log(job);
             //the userName is the first part of repository_slug
-            const userName = job.data.repository_slug.split('/')[0];
-            console.log(userName);
+//            const userName = job.data.repository_slug.split('/')[0];
+//            console.log(userName);
 //            const location = userLocation(userName)
 //            console.log(location);
         }
