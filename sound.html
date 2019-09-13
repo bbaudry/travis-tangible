@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Try tone</title>
+    <style>
+      .button {
+        background-color: #4CAF50;
+        border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+</style>
+
+  </head>
+  <body>
+    <!--<button class="button" onmousedown="playC()" onmouseup="stopC()" >play C</button>-->
+    <button class="button" onclick="playC()" >play C</button>
+    <button class="button" onclick="stopC()" >stop C</button>
+    <button class="button" onclick="playA()" >play A</button>
+    <button class="button" onclick="stopA()" >stop A</button>
+    <button class="button" onclick="playChorus()" >play chorus</button>
+    <button class="button" onclick="stopChorus()" >stop chorus</button>
+    <button class="button" onclick="drawRandomLine()" >drawLines</button>
+    <canvas id="canvas" width="900" height="900">No canvas support</canvas>
+    <script src="tone.js"></script>
+    
+    <!-- I would like to try to use wavesurfer in order to draw the signal of the sound produced by tone
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <div id="waveform"></div> 
+    -->
+    <script>
+      var synth = new Tone.Synth({
+        oscillator: {
+            type: 'triangle8'
+        },
+        envelope: {
+            attack: 2,
+            decay: 1,
+            sustain: 4,
+            release: 15
+        }
+    }).toMaster();
+    var synthDraw = new Tone.Synth().toMaster();
+      var synth2 = new Tone.PolySynth(2, Tone.Synth).toMaster();
+      window.onload = function(){
+        initSynthesizers();
+      }
+
+    function initSynthesizers(){
+      synth2.voices[0].oscillator.type = 'triangle8';
+      synth2.voices[1].oscillator.type = 'triangle8';
+      synth2.voices[0].envelope.attack = 2;
+      synth2.voices[0].envelope.decay = 1;
+      synth2.voices[0].envelope.sustain = 4;//0.4;
+      synth2.voices[0].envelope.release = 4;
+    }
+
+      function playC(){
+        console.log(synth2.voices[0]);
+        synth.set("volume",0);
+        synth.triggerAttack(['C3','A3']);
+      }
+
+      function stopC() {
+        synth.triggerRelease(['C3','A3'])
+        synth2.set("volume",10);
+        synth2.voices[0].detune = 70;
+        synth2.voices[1].detune = 70;
+        synth2.triggerAttackRelease(['F#4','F3'],'4n', 0);
+      }
+
+      // create a new synth
+      const synthMembrane = new Tone.MembraneSynth().toMaster();
+
+      // create a new tone loop
+      const loop = new Tone.Loop(function(time) {
+        // Run once per eighth note, 8n, & log the time
+        console.log(time);
+        // trigger synth note
+        synthMembrane.triggerAttackRelease("C2", "8n");
+      }, "8n");            
+
+      function playA() {
+        // Start the transport which is the main timeline
+        loop.start(0);
+        
+        //var dist = new Tone.Distortion(1.2).toMaster();
+//var fm = new Tone.FMSynth().connect(dist);
+//this sounds good on bass notes
+//fm.triggerAttackRelease("A1", "8n");      
+}
+      function stopA() {
+        //synth2.triggerAttackRelease(['F#4','F3'],'4n', 1);
+        loop.stop();
+      }
+
+      var chorus = new Tone.Chorus(4, 2.5, 0.5);      
+      chorus.spread = 0;
+      var synthDeep = new Tone.PolySynth(4, Tone.MonoSynth).connect(chorus).toMaster();
+
+      function playChorus(){
+        synthDeep.triggerAttack(["C3","E3","G3"]);      
+      }
+
+      function stopChorus(){
+        synthDeep.triggerRelease(["C3","E3","G3"]);      
+      }
+
+      const canvas = document.getElementById("canvas");
+
+      function drawCircle(){
+        draw=true;
+        setInterval(function(){
+          const ctx = canvas.getContext("2d");
+          if(draw){
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2, canvas.height/3, 0, 2 * Math.PI);
+            ctx.fillStyle = "rgb(255, 0, 0)";
+            ctx.fill(); 
+            draw=false;
+          }
+          else{
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            draw=true;
+          }
+      },1000)
+      } 
+
+      function drawRandomLine(){
+        var origin=[ Math.random()*canvas.width,canvas.height]; // random point at the bottom of the canvas
+        var destination=[ Math.random()*canvas.width, Math.random()*canvas.height];  // 2d random space point in canvas
+        setInterval(function(){
+          const ctx = canvas.getContext("2d");
+          ctx.beginPath(); // Start the path
+          ctx.moveTo(origin[0],origin[1]); // Set the path origin
+          ctx.lineTo(destination[0],destination[1]); // Set the path destination
+          ctx.closePath(); // Close the path
+          ctx.stroke(); // draw the path
+          origin=destination
+          destination=[ Math.random()*canvas.width, Math.random()*canvas.height];
+          synthDraw.triggerAttackRelease('F3',"2n");
+        },1000)
+      }
+
+      function drawTree(){
+        const originBranch = drawTrunk();
+        drawBranch(originBranch);
+      }
+
+      function drawTrunk(){
+        var origin=[ Math.random()*canvas.width,canvas.height]; 
+        var trunkWidth=Math.random()*30;
+        var trunkHeight=Math.random()*80;
+        const ctx = canvas.getContext("2d");
+        ctx.beginPath();
+        
+        for (let i=0; i<trunkHeight; i++){//draw trunk point by point from origin to trunkHeight
+          ctx.lineWidth=Math.random()*trunkWidth; //each point of the trunk has a varying widht, to add some 'naturaleness'
+          console.log(ctx.lineWidth);
+          ctx.moveTo(origin[0],origin[1]-i); // Set the coordinates for the origin of the point
+          ctx.lineTo(origin[0],origin[1]-i-1); // Set the coordinates for the origin of the point
+          ctx.stroke();
+        }
+        return [origin, canvas.height-trunkHeight]
+      }
+
+      function drawBranch(originBranch){
+        var originBranch=[Math.random()*canvas.width,canvas.height]; 
+        const ctx = canvas.getContext("2d");
+        ctx.beginPath();
+        console.log("draw branch");
+        
+        ctx.arc(originBranch[0]-10, originBranch[0]-50, 50, Math.PI, (Math.PI/2)*Math.random(), true);
+        ctx.stroke();
+      }
+
+    </script>
+  </body>
+</html>
