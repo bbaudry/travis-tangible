@@ -101,7 +101,7 @@
     }
 
     const synthMembrane = new Tone.MembraneSynth().toMaster();
-    const commitSound = Tone.Synth({
+    const commitSound = new Tone.Synth({
         oscillator: {
             type: 'triangle8'
         },
@@ -114,7 +114,7 @@
     }).toMaster();
 
     function playA(){
-        commitSound.triggerAttackRelease("C2", "8n");
+        synthMembrane.triggerAttackRelease("C2", "8n");
     }
 
     const synthMembraneLeft = new Tone.MembraneSynth().toMaster();
