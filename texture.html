@@ -21,45 +21,120 @@
 
   <body>
     <!--<button class="button" onmousedown="playC()" onmouseup="stopC()" >play C</button>-->
-    <button class="button" onclick="startTexture()" >start</button>
-    <button class="button" onclick="stopTexture()" >stop</button>
+    <button class="button" onclick="startTexture()" >startTexture</button>
+    <button class="button" onclick="stopTexture()" >stopTexture</button>
+    <button class="button" onclick="startNoise()" >startNoise</button>
+    <button class="button" onclick="stopNoise()" >stopNoise</button>
     <button class="button" onclick="playA()" >play A</button>
+    <button class="button" onclick="playAleft()" >play AL</button>
+    <button class="button" onclick="playAright()" >play AR</button>
     <canvas id="canvas" width="900" height="900">No canvas support</canvas>
     <script src="tone.js"></script>
     <script src="ToneDrone.js" type="text/javascript"></script>
     <script>
+
+    //Inspired by : https://tothepoweroftom.github.io/xysynth/#    
 	toneDrone = new ToneDrone();
     toneDrone.connectComponents();
 
+    // noise= new Tone.Noise("brown").toMaster();
+    // limiter = new Tone.Limiter(-6).toMaster();
+    // eq = new Tone.EQ3(-10, -20, -1).toMaster();
+    // dist = new Tone.Distortion(0.1).toMaster();
+    // vibrato = new Tone.Vibrato(0.01, 0.1).toMaster();
+    // pingPong = new Tone.PingPongDelay("4n", 0.7).toMaster();
+    // reverb = new Tone.Freeverb(0.1, 500).toMaster();
+    // vol = new Tone.Volume(0.1).toMaster();
+
     synth = new Tone.FMSynth({
 
-        "harmonicity": 1.11,
-        "modulationIndex": 5,
+        "harmonicity": 3.25,
+        "modulationIndex": 13.25,
         "detune": 0,
         "oscillator": {
-            "type": "triangle"
+            "type": "sine",
         },
         "modulation": {
             "type": "sine"
         },
         "modulationEnvelope": {
-            "attack": 1,//0.05,
+            "attack": 0.05,
             "decay": 0,
             "sustain": 1.0,
             "release": 0.2,
         }
         }).toMaster();
+    // synth.connect(dist);
+    // synth.connect(vibrato);
+    // synth.connect(vol);
+ 
+    noise= new Tone.Noise("pink");
+    limiter = new Tone.Limiter(-6);
+    pingPong = new Tone.PingPongDelay("4n", 0.7);
+    reverb = new Tone.Freeverb(0.1, 500);
+    eq = new Tone.EQ3(-10, -20, -1);
+    dist = new Tone.Distortion(0.1);
+    vibrato = new Tone.Vibrato(125.75,0.25);
+    vol = new Tone.Volume(0);
+    synth.chain(eq, dist, vibrato, vol, pingPong, reverb, limiter, Tone.Master)
 
     function startTexture(){
+        //synth.harmonicity.value=3.25;
+        //synth.modulationIndex.value=13.25;
+        //dist.distortion=0.1;
         synth.triggerAttack("C1");
+
     }
 
     function stopTexture(){
-        toneDrone.synth.triggerRelease();
+        synth.triggerRelease();
+    }    
+
+    var noisetexture = new Tone.NoiseSynth().toMaster();
+
+    function startNoise(){
+        noisetexture.set("noise.type", "white");
+        noisetexture.triggerAttack();
     }
+    function stopNoise(){
+        noisetexture.triggerRelease();
+    }
+
     const synthMembrane = new Tone.MembraneSynth().toMaster();
+    const commitSound = Tone.Synth({
+        oscillator: {
+            type: 'triangle8'
+        },
+        envelope: {
+            attack: 2,
+            decay: 1,
+            sustain: 0.4,
+            release: 4
+        }
+    }).toMaster();
+
     function playA(){
-        synthMembrane.triggerAttackRelease("C2", "8n");
+        commitSound.triggerAttackRelease("C2", "8n");
+    }
+
+    const synthMembraneLeft = new Tone.MembraneSynth().toMaster();
+    var left = new Tone.Panner(-1);
+    synthMembraneLeft.chain(left, Tone.Master)
+ 
+
+    function playAleft(){
+        synthMembraneLeft.triggerAttackRelease("C2", "8n");
+    }
+
+    const synthMembraneRight = new Tone.MembraneSynth().toMaster();
+    var right = new Tone.Panner(1);
+    distright = new Tone.Distortion(0.1).toMaster();
+
+    synthMembraneRight.chain(right, distright, Tone.Master)
+ 
+
+    function playAright(){
+        synthMembraneRight.triggerAttackRelease("C2", "8n");
     }
 
     </script>
