@@ -45,96 +45,106 @@
     // pingPong = new Tone.PingPongDelay("4n", 0.7).toMaster();
     // reverb = new Tone.Freeverb(0.1, 500).toMaster();
     // vol = new Tone.Volume(0.1).toMaster();
-
     synth = new Tone.FMSynth({
 
-        "harmonicity": 3.25,
-        "modulationIndex": 13.25,
-        "detune": 0,
-        "oscillator": {
-            "type": "sine",
-        },
-        "modulation": {
-            "type": "sine"
-        },
-        "modulationEnvelope": {
-            "attack": 0.05,
-            "decay": 0,
-            "sustain": 1.0,
-            "release": 0.2,
-        }
-        }).toMaster();
-    // synth.connect(dist);
-    // synth.connect(vibrato);
-    // synth.connect(vol);
- 
-    noise= new Tone.Noise("pink");
-    limiter = new Tone.Limiter(-6);
-    pingPong = new Tone.PingPongDelay("4n", 0.7);
-    reverb = new Tone.Freeverb(0.1, 500);
-    eq = new Tone.EQ3(-10, -20, -1);
-    dist = new Tone.Distortion(0.1);
-    vibrato = new Tone.Vibrato(125.75,0.25);
-    vol = new Tone.Volume(0);
-    synth.chain(eq, dist, vibrato, vol, pingPong, reverb, limiter, Tone.Master)
+"harmonicity": 3.25,
+"modulationIndex": 13.25,
+"detune": 0,
+"oscillator": {
+    "type": "sine",
+},
+"modulation": {
+    "type": "sine"
+},
+"modulationEnvelope": {
+    "attack": 0.05,
+    "decay": 0,
+    "sustain": 1.0,
+    "release": 0.2,
+}
+}).toMaster();
+// synth.connect(dist);
+// synth.connect(vibrato);
+// synth.connect(vol);
 
-    function startTexture(){
-        //synth.harmonicity.value=3.25;
-        //synth.modulationIndex.value=13.25;
-        //dist.distortion=0.1;
-        synth.triggerAttack("C1");
+noise= new Tone.Noise("pink");
+limiter = new Tone.Limiter(-6);
+pingPong = new Tone.PingPongDelay("4n", 0.7);
+reverb = new Tone.Freeverb(0.1, 500);
+eq = new Tone.EQ3(-10, -20, -1);
+dist = new Tone.Distortion(0.1);
+vibrato = new Tone.Vibrato(125.75,0.25);
+vol = new Tone.Volume(0);
+//synth.chain(eq, dist, vibrato, vol, pingPong, reverb, limiter, Tone.Master)
 
-    }
+function startTexture(){
+//synth.harmonicity.value=3.25;
+//synth.modulationIndex.value=13.25;
+//dist.distortion=0.1;
+synth.triggerAttack("C1");
 
-    function stopTexture(){
-        synth.triggerRelease();
-    }    
+}
 
-    var noisetexture = new Tone.NoiseSynth().toMaster();
+function stopTexture(){
+synth.triggerRelease();
+}    
 
-    function startNoise(){
-        noisetexture.set("noise.type", "white");
-        noisetexture.triggerAttack();
-    }
-    function stopNoise(){
-        noisetexture.triggerRelease();
-    }
+var noisetexture = new Tone.NoiseSynth().toMaster();
 
-    const synthMembrane = new Tone.MembraneSynth().toMaster();
-    const commitSound = new Tone.Synth({
-        oscillator: {
-            type: 'triangle8'
-        },
-        envelope: {
-            attack: 2,
-            decay: 1,
-            sustain: 0.4,
-            release: 4
-        }
-    }).toMaster();
+function startNoise(){
+noisetexture.set("noise.type", "white");
+noisetexture.triggerAttack();
+}
+function stopNoise(){
+noisetexture.triggerRelease();
+}
 
-    function playA(){
-        synthMembrane.triggerAttackRelease("C2", "8n");
-    }
+const synthMembrane = new Tone.MembraneSynth().toMaster();
+const commitSound = new Tone.Synth({
+oscillator: {
+    type: 'triangle8'
+},
+envelope: {
+    attack: 2,
+    decay: 1,
+    sustain: 0.4,
+    release: 4
+}
+}).toMaster();
 
-    const synthMembraneLeft = new Tone.MembraneSynth().toMaster();
-    var left = new Tone.Panner(-1);
-    synthMembraneLeft.chain(left, Tone.Master)
- 
+function playA(){
+synthMembrane.triggerAttackRelease("C2", "8n");
+}
 
-    function playAleft(){
-        synthMembraneLeft.triggerAttackRelease("C2", "8n");
-    }
+const synthMembraneLeft = new Tone.MembraneSynth().toMaster();
+var left = new Tone.Panner(-1);
+synthMembraneLeft.chain(left, Tone.Master)
 
-    const synthMembraneRight = new Tone.MembraneSynth().toMaster();
-    var right = new Tone.Panner(1);
-    distright = new Tone.Distortion(0.1).toMaster();
 
-    synthMembraneRight.chain(right, distright, Tone.Master)
- 
+function playAleft(){
+synthMembraneLeft.triggerAttackRelease("C2", "8n");
+}
 
+const synthMembraneRight = new Tone.MembraneSynth().toMaster();
+var right = new Tone.Panner(1);
+distright = new Tone.Distortion(0.1).toMaster();
+
+synthMembraneRight.chain(right, distright, Tone.Master)
+    
+    const bell = new Tone.MetalSynth({
+			"harmonicity" : 12,
+			"resonance" : 800,
+            "modulationIndex" : 20,
+            "octaves" : 1.5,
+			"envelope" : {
+                "decay" : 0.4,
+                "attack" : 0.01,
+			},
+			"volume" : 30
+		}).toMaster();
+    //bell.chain(right, distright, Tone.Master)
     function playAright(){
-        synthMembraneRight.triggerAttackRelease("C2", "8n");
+        bell.triggerAttackRelease("C2", "8n");
     }
 
     </script>
